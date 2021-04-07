@@ -69,7 +69,7 @@
     <jackson-databind-version>2.9.10.8</jackson-databind-version>
     <jasypt-version>1.9.3</jasypt-version>
     <jaxb-bundle-version>2.2.11_1</jaxb-bundle-version>
-    <jetty9-version>9.4.38.v20210224</jetty9-version>
+    <jetty9-version>9.4.39.v20210325</jetty9-version>
     <jetty-version>${jetty9-version}</jetty-version>
     <jmdns-version>3.4.1</jmdns-version>
     <tomcat-api-version>9.0.41</tomcat-api-version>
@@ -85,7 +85,6 @@
     <log4j-version>1.2.17</log4j-version>
     <mockito-version>3.8.0</mockito-version>
     <owasp-dependency-check-version>5.2.4</owasp-dependency-check-version>
-    <powermock-version>1.7.4</powermock-version>
     <mqtt-client-version>1.16</mqtt-client-version>
     <org-apache-derby-version>10.14.2.0</org-apache-derby-version>
     <osgi-version>6.0.0</osgi-version>
@@ -943,27 +942,9 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-core</artifactId>
-        <version>${powermock-version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-module-junit4</artifactId>
-        <version>${powermock-version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito</artifactId>
-        <version>${powermock-version}</version>
-        <scope>test</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.powermock</groupId>
-        <artifactId>powermock-api-mockito-common</artifactId>
-        <version>${powermock-version}</version>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-inline</artifactId>
+        <version>${mockito-version}</version>
         <scope>test</scope>
       </dependency>
       <dependency>
