@@ -22,7 +22,7 @@
 
     <!-- Bundles needed if only client will be deployed in the container -->
     <feature name="activemq-client" description="ActiveMQ client libraries" version="${project.version}">
-        <feature version="[4,5)">spring</feature>
+        <feature version="[5,6)">spring</feature>
         <feature>aries-blueprint</feature>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-annotation_1.0_spec/1.1.1</bundle>
         <bundle dependency="true">mvn:org.apache.geronimo.specs/geronimo-jta_1.1_spec/1.1.1</bundle>
@@ -63,7 +63,7 @@
       <bundle dependency="true">mvn:org.apache.activemq/activeio-core/${activeio-version}</bundle>
       <bundle dependency="true">mvn:org.codehaus.jettison/jettison/${jettison-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-core/${jackson-version}</bundle>
-      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-databind-version}</bundle>
+      <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-databind/${jackson-version}</bundle>
       <bundle dependency="true">mvn:com.fasterxml.jackson.core/jackson-annotations/${jackson-version}</bundle>
     </feature>
 </features>
