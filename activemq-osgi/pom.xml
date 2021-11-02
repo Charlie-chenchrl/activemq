@@ -234,7 +234,6 @@
               javax.servlet*;resolution:=optional,
               com.thoughtworks.xstream*;resolution:=optional,
               org.apache.activeio*;resolution:=optional,
-              org.apache.activemq.camel*;resolution:=optional,
               org.apache.camel*;version="${camel-version-range}";resolution:=optional,
               org.apache.camel.spring.handler;version="${camel-version-range}";resolution:=optional,
               org.apache.camel.spring.xml.handler;version="${camel-version-range}";resolution:=optional,
@@ -294,6 +293,7 @@
             <DynamicImport-Package>
               *
             </DynamicImport-Package>
+            <_noee>true</_noee>
           </instructions>
         </configuration>
       </plugin>
