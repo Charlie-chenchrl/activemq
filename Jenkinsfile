@@ -22,8 +22,8 @@
 pipeline {
 
     agent {
-        node {
-            label 'ubuntu'
+        label {
+            label params.nodeLabel
         }
     }
 
@@ -35,15 +35,20 @@ pipeline {
 
     options {
         // Configure an overall timeout for the build of ten hours.
-        timeout(time: 10, unit: 'HOURS')
+        timeout(time: 20, unit: 'HOURS')
         // When we have test-fails e.g. we don't need to run the remaining steps
         buildDiscarder(logRotator(numToKeepStr: '5', artifactNumToKeepStr: '5'))
         disableConcurrentBuilds()
     }
 
+    parameters {
+        choice(name: 'nodeLabel', choices: ['ubuntu', 's390x']) 
+    }
+
     stages {
         stage('Initialization') {
             steps {
+                echo "running on ${env.NODE_NAME}"
                 echo 'Building branch ' + env.BRANCH_NAME
                 echo 'Using PATH ' + env.PATH
             }
@@ -63,10 +68,46 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build JDK 20') {
+            tools {
+                jdk "jdk_20_latest"
+            }
             steps {
-                echo 'Building'
+                echo 'Building JDK 20'
+                sh 'java -version'
+                sh 'mvn -version'
                 sh 'mvn -U -B -e clean install -DskipTests'
+            }
+        }
+
+        stage('Build JDK 17') {
+            tools {
+                jdk "jdk_17_latest"
+            }
+            steps {
+                echo 'Building JDK 17'
+                sh 'java -version'
+                sh 'mvn -version'
+                sh 'mvn -U -B -e clean install -DskipTests'
+            }
+        }
+
+        stage('Build JDK 11') {
+            tools {
+                jdk "jdk_11_latest"
+            }  
+            steps {
+                echo 'Building JDK 11'
+                sh 'java -version'
+                sh 'mvn -version'
+                sh 'mvn -U -B -e clean install -DskipTests'
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                echo 'Running apache-rat:check'
+                sh 'mvn apache-rat:check'
             }
         }
 
@@ -75,7 +116,7 @@ pipeline {
                 echo 'Running tests'
                 // all tests is very very long (10 hours on Apache Jenkins)
                 // sh 'mvn -B -e test -pl activemq-unit-tests -Dactivemq.tests=all'
-                sh 'mvn -B -e -fae test'
+                sh 'mvn -B -e -fae test -Dsurefire.rerunFailingTestsCount=3'
             }
             post {
                 always {
@@ -88,7 +129,7 @@ pipeline {
         stage('Deploy') {
             when {
                 expression {
-                    env.BRANCH_NAME ==~ /(activemq-5.16.x|activemq-5.15.x|master)/
+                    env.BRANCH_NAME ==~ /(activemq-5.17.x|activemq-5.16.x|activemq-5.15.x|main)/
                 }
             }
             steps {
@@ -103,7 +144,7 @@ pipeline {
         // If this build failed, send an email to the list.
         failure {
             script {
-                if(env.BRANCH_NAME == "activemq-5.15.x" || env.BRANCH_NAME == "activemq-5.16.x" || env.BRANCH_NAME == "master") {
+                if(env.BRANCH_NAME == "activemq-5.17.x" || env.BRANCH_NAME == "activemq-5.15.x" || env.BRANCH_NAME == "activemq-5.16.x" || env.BRANCH_NAME == "main") {
                     emailext(
                             subject: "[BUILD-FAILURE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
                             body: """
@@ -120,7 +161,7 @@ Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANC
         // If this build didn't fail, but there were failing tests, send an email to the list.
         unstable {
             script {
-                if(env.BRANCH_NAME == "activemq-5.15.x" || env.BRANCH_NAME == "activemq-5.16.x" || env.BRANCH_NAME == "master") {
+                if(env.BRANCH_NAME == "activemq-5.17.x" || env.BRANCH_NAME == "activemq-5.15.x" || env.BRANCH_NAME == "activemq-5.16.x" || env.BRANCH_NAME == "main") {
                     emailext(
                             subject: "[BUILD-UNSTABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
                             body: """
@@ -140,7 +181,7 @@ Check console output at "<a href="${env.BUILD_URL}">${env.JOB_NAME} [${env.BRANC
             // (in this cae we probably don't have to do any post-build analysis)
             deleteDir()
             script {
-                if ((env.BRANCH_NAME == "activemq-5.15.x" || env.BRANCH_NAME == "activemq-5.16.x" || env.BRANCH_NAME == "master") && (currentBuild.previousBuild != null) && (currentBuild.previousBuild.result != 'SUCCESS')) {
+                if ((env.BRANCH_NAME == "activemq-5.17.x" || env.BRANCH_NAME == "activemq-5.15.x" || env.BRANCH_NAME == "activemq-5.16.x" || env.BRANCH_NAME == "main") && (currentBuild.previousBuild != null) && (currentBuild.previousBuild.result != 'SUCCESS')) {
                     emailext (
                             subject: "[BUILD-STABLE]: Job '${env.JOB_NAME} [${env.BRANCH_NAME}] [${env.BUILD_NUMBER}]'",
                             body: """

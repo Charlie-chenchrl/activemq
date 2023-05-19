@@ -71,6 +71,7 @@ public class AmqpTestSupport {
     protected Vector<Throwable> exceptions = new Vector<>();
     protected int numberOfMessages;
 
+    protected boolean advisorySupport = false;
     protected URI amqpURI;
     protected int amqpPort;
     protected URI amqpSslURI;
@@ -100,7 +101,6 @@ public class AmqpTestSupport {
     @Before
     public void setUp() throws Exception {
         LOG.info("========== start " + getTestName() + " ==========");
-        System.setProperty("org.apache.activemq.SERIALIZABLE_PACKAGES", "java.util");
         exceptions.clear();
 
         startBroker();
@@ -119,7 +119,7 @@ public class AmqpTestSupport {
             brokerService.setPersistenceAdapter(kaha);
         }
         brokerService.setSchedulerSupport(isSchedulerEnabled());
-        brokerService.setAdvisorySupport(false);
+        brokerService.setAdvisorySupport(advisorySupport);
         brokerService.setUseJmx(isUseJmx());
         brokerService.getManagementContext().setCreateConnector(false);
 
@@ -356,7 +356,10 @@ public class AmqpTestSupport {
         }
 
         ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory(openwireURI);
-
+        List<String> trustedPackages = new ArrayList<>();
+        trustedPackages.addAll(factory.getTrustedPackages());
+        trustedPackages.add("java.util");
+        factory.setTrustedPackages(trustedPackages);
         return factory.createConnection();
     }
 

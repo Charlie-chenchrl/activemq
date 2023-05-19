@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.activemq</groupId>
     <artifactId>activemq-parent</artifactId>
-    <version>5.17.0-SNAPSHOT</version>
+    <version>5.19.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>activemq-osgi</artifactId>
@@ -207,12 +207,26 @@
     </resources>
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-compiler-plugin</artifactId>
+	<configuration>
+          <compilerArgument>-proc:none</compilerArgument>
+	</configuration>
+      </plugin>
+      <plugin>
         <groupId>org.apache.felix</groupId>
         <artifactId>maven-bundle-plugin</artifactId>
         <extensions>true</extensions>
         <inherited>true</inherited>
         <configuration>
           <instructions>
+            <Bundle-Activator>org.apache.activemq.util.osgi.Activator</Bundle-Activator>
+            <Embed-Dependency>
+              *;groupId=org.apache.activemq;inline=META-INF/services/*,
+              *;groupId=org.apache.qpid;inline=META-INF/services/*,
+              *;groupId=org.apache.xbean;inline=true
+            </Embed-Dependency>
+            <Embed-Transitive>true</Embed-Transitive>
             <Export-Package>
               org.apache.activemq*;version=${project.version};-noimport:=true;-split-package:=merge-first,
               org.apache.activemq.web*;version=${project.version};-noimport:=true;-split-package:=merge-first
@@ -233,7 +247,6 @@
               javax.resource*;resolution:=optional,
               javax.servlet*;resolution:=optional,
               com.thoughtworks.xstream*;resolution:=optional,
-              org.apache.activeio*;resolution:=optional,
               org.apache.camel*;version="${camel-version-range}";resolution:=optional,
               org.apache.camel.spring.handler;version="${camel-version-range}";resolution:=optional,
               org.apache.camel.spring.xml.handler;version="${camel-version-range}";resolution:=optional,
@@ -253,6 +266,7 @@
               org.springframework.transaction*;version="[4,6)";resolution:=optional,
               org.springframework*;version="[4,6)";resolution:=optional,
               org.xmlpull*;resolution:=optional,
+              !javax.annotation.meta,
               javax.annotation*;version="[1,4)",
               !com.thoughtworks.qdox*,
               org.apache.commons.logging;version="[1.2,2)";resolution:=optional,
@@ -271,7 +285,7 @@
               org.apache.tools.ant*;resolution:=optional,
               org.apache.log4j*;resolution:=optional,
               org.json*;resolution:=optional,
-              org.objectweb.asm;version="[5,8)";resolution:=optional,
+              org.objectweb.asm;version="[5,10)";resolution:=optional,
               mx4j.tools*;resolution:=optional,
               org.slf4j*;resolution:=optional,
               org.osgi.service.blueprint;resolution:=optional,
@@ -294,6 +308,7 @@
               *
             </DynamicImport-Package>
             <_noee>true</_noee>
+            <_contract>!*</_contract>
           </instructions>
         </configuration>
       </plugin>
@@ -355,23 +370,6 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>
-
-
-      <plugin>
-        <groupId>org.apache.felix</groupId>
-        <artifactId>maven-bundle-plugin</artifactId>
-        <configuration>
-          <instructions>
-            <Bundle-Activator>org.apache.activemq.util.osgi.Activator</Bundle-Activator>
-            <Embed-Dependency>
-              *;groupId=org.apache.activemq;inline=META-INF/services/*,
-              *;groupId=org.apache.qpid;inline=META-INF/services/*,
-              *;groupId=org.apache.xbean;inline=true
-            </Embed-Dependency>
-            <Embed-Transitive>true</Embed-Transitive>
-         </instructions>
-        </configuration>
       </plugin>
     </plugins>
     <pluginManagement>
@@ -561,15 +559,8 @@
         </dependency> -->
         <dependency>
           <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-j2ee-management_1.1_spec</artifactId>
-          <version>1.0.1</version>
-          <classifier>sources</classifier>
-          <optional>true</optional>
-        </dependency>
-        <dependency>
-          <groupId>org.apache.geronimo.specs</groupId>
-          <artifactId>geronimo-annotation_1.0_spec</artifactId>
-          <version>1.1.1</version>
+          <artifactId>geronimo-annotation_1.3_spec</artifactId>
+          <version>1.0</version>
           <classifier>sources</classifier>
           <optional>true</optional>
         </dependency>
@@ -581,15 +572,15 @@
           <optional>true</optional>
         </dependency>
         <dependency>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
-          <version>${slf4j-version}</version>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-slf4j2-impl</artifactId>
+          <version>${log4j-version}</version>
           <classifier>sources</classifier>
           <optional>true</optional>
         </dependency>
         <dependency>
-          <groupId>log4j</groupId>
-          <artifactId>log4j</artifactId>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-core</artifactId>
           <version>${log4j-version}</version>
           <classifier>sources</classifier>
           <optional>true</optional>

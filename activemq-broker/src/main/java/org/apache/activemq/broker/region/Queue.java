@@ -1064,6 +1064,9 @@ public class Queue extends BaseDestination implements Task, UsageListener, Index
             if (systemUsage.getStoreUsage() != null) {
                 systemUsage.getStoreUsage().stop();
             }
+            if (this.systemUsage.getTempUsage() != null) {
+                this.systemUsage.getTempUsage().stop();
+            }
             if (store != null) {
                 store.stop();
             }
@@ -1296,8 +1299,8 @@ public class Queue extends BaseDestination implements Task, UsageListener, Index
     public void purge() throws Exception {
         ConnectionContext c = createConnectionContext();
         List<MessageReference> list = null;
+        sendLock.lock();
         try {
-            sendLock.lock();
             long originalMessageCount = this.destinationStatistics.getMessages().getCount();
             do {
                 doPageIn(true, false, getMaxPageSize());  // signal no expiry processing needed.
@@ -2207,6 +2210,16 @@ public class Queue extends BaseDestination implements Task, UsageListener, Index
                         // no further dispatch of list to a full consumer to
                         // avoid out of order message receipt
                         fullConsumers.add(s);
+
+                        //For full consumers we need to mark that they are slow and
+                        // then call the broker.slowConsumer() hook if implemented
+                        if (s instanceof PrefetchSubscription) {
+                            final PrefetchSubscription sub = (PrefetchSubscription) s;
+                            if (!sub.isSlowConsumer()) {
+                                sub.setSlowConsumer(true);
+                                broker.slowConsumer(sub.getContext(), this, sub);
+                            }
+                        }
                         LOG.trace("Subscription full {}", s);
                     }
                 }

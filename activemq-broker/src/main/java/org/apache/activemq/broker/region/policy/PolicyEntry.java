@@ -51,7 +51,7 @@ public class PolicyEntry extends DestinationMapEntry {
     private DispatchPolicy dispatchPolicy;
     private SubscriptionRecoveryPolicy subscriptionRecoveryPolicy;
     private boolean sendAdvisoryIfNoConsumers;
-    private boolean sendDuplicateFromStoreToDLQ = true;
+    private boolean sendDuplicateFromStoreToDLQ = false;
     private DeadLetterStrategy deadLetterStrategy = Destination.DEFAULT_DEAD_LETTER_STRATEGY;
     private PendingMessageLimitStrategy pendingMessageLimitStrategy;
     private MessageEvictionStrategy messageEvictionStrategy;
@@ -84,6 +84,7 @@ public class PolicyEntry extends DestinationMapEntry {
     private boolean advisoryWhenFull;
     private boolean advisoryForDelivery;
     private boolean advisoryForConsumed;
+    private boolean advisoryForDispatched;
     private boolean includeBodyForAdvisory;
     private long expireMessagesPeriod = BaseDestination.EXPIRE_MESSAGE_PERIOD;
     private int maxExpirePageSize = BaseDestination.MAX_BROWSE_PAGE_SIZE;
@@ -274,6 +275,9 @@ public class PolicyEntry extends DestinationMapEntry {
         }
         if (isUpdate("advisoryForConsumed", includedProperties)) {
             destination.setAdvisoryForConsumed(isAdvisoryForConsumed());
+        }
+        if (isUpdate("advisoryForDispatched", includedProperties)) {
+            destination.setAdvisoryForDispatched(isAdvisoryForDispatched());
         }
         if (isUpdate("advisoryForDelivery", includedProperties)) {
             destination.setAdvisoryForDelivery(isAdvisoryForDelivery());
@@ -846,6 +850,14 @@ public class PolicyEntry extends DestinationMapEntry {
      */
     public void setAdvisoryForConsumed(boolean advisoryForConsumed) {
         this.advisoryForConsumed = advisoryForConsumed;
+    }
+
+    public boolean isAdvisoryForDispatched() {
+        return advisoryForDispatched;
+    }
+
+    public void setAdvisoryForDispatched(boolean advisoryForDispatched) {
+        this.advisoryForDispatched = advisoryForDispatched;
     }
 
     /**

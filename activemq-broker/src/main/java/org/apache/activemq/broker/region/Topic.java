@@ -599,10 +599,13 @@ public class Topic extends BaseDestination implements Task {
     public void acknowledge(ConnectionContext context, Subscription sub, final MessageAck ack,
             final MessageReference node) throws IOException {
         if (topicStore != null && node.isPersistent()) {
-            DurableTopicSubscription dsub = (DurableTopicSubscription) sub;
-            SubscriptionKey key = dsub.getSubscriptionKey();
-            topicStore.acknowledge(context, key.getClientId(), key.getSubscriptionName(), node.getMessageId(),
+            if (sub instanceof DurableTopicSubscription) {
+                DurableTopicSubscription dsub = (DurableTopicSubscription) sub;
+                SubscriptionKey key = dsub.getSubscriptionKey();
+                topicStore.acknowledge(context, key.getClientId(), key.getSubscriptionName(),
+                    node.getMessageId(),
                     convertToNonRangedAck(ack, node));
+            }
         }
         messageConsumed(context, node);
     }
@@ -654,7 +657,7 @@ public class Topic extends BaseDestination implements Task {
         return result.toArray(new Message[result.size()]);
     }
 
-    private void doBrowse(final List<Message> browseList, final int max) {
+    public void doBrowse(final List<Message> browseList, final int max) {
         try {
             if (topicStore != null) {
                 final List<Message> toExpire = new ArrayList<Message>();

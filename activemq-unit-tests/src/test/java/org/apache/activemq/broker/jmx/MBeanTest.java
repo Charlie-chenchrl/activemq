@@ -46,8 +46,6 @@ import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.TabularData;
 
-import junit.textui.TestRunner;
-
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.ActiveMQPrefetchPolicy;
@@ -69,6 +67,9 @@ import org.apache.activemq.util.Wait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import junit.textui.TestRunner;
+
+
 /**
  * A test case of the various MBeans in ActiveMQ. If you want to look at the
  * various MBeans after the test has been run then run this test case as a
@@ -83,6 +84,7 @@ public class MBeanTest extends EmbeddedBrokerTestSupport {
     protected MBeanServer mbeanServer;
     protected String domain = "org.apache.activemq";
     protected String clientID = "foo";
+    protected String offlineClientID = "OFFLINE";
 
     protected Connection connection;
     protected boolean transacted;
@@ -117,8 +119,10 @@ public class MBeanTest extends EmbeddedBrokerTestSupport {
         // messages on a queue
         assertSendViaMBean();
         assertSendCsnvViaMBean();
+        assertSendTextMessageWithCustomDelimitedPropsViaMBean();
         assertQueueBrowseWorks();
         assertCreateAndDestroyDurableSubscriptions();
+        assertCreateAndDestroyOfflineDurableSubscriptions();
         assertConsumerCounts();
         assertProducerCounts();
     }
@@ -728,6 +732,42 @@ public class MBeanTest extends EmbeddedBrokerTestSupport {
         browseAndVerifyTypes(proxy, true);
     }
 
+    protected void assertSendTextMessageWithCustomDelimitedPropsViaMBean() throws Exception {
+        String queueName = getDestinationString() + ".SendMBBean";
+
+        ObjectName brokerName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
+        echo("Create QueueView MBean...");
+        BrokerViewMBean broker = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerName, BrokerViewMBean.class, true);
+        broker.addQueue(queueName);
+
+        ObjectName queueViewMBeanName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost,destinationType=Queue,destinationName=" + queueName);
+
+        echo("Create QueueView MBean...");
+        QueueViewMBean proxy = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, queueViewMBeanName, QueueViewMBean.class, true);
+
+        proxy.purge();
+
+        int count = 5;
+
+        String delimiter = ";";
+        for (int i = 0; i < count; i++) {
+            String props = String.join(delimiter,
+                    "body=message:" + i,
+                    "JMSCorrelationID=MyCorrId",
+                    "JMSDeliveryMode=1",
+                    "JMSXGroupID=MyGroupID",
+                    "JMSXGroupSeq=1234",
+                    "JMSPriority=" + (i + 1),
+                    "JMSType=MyType",
+                    "MyHeader=" + i,
+                    "MyStringHeader=StringHeader" + i);
+
+            proxy.sendTextMessageWithProperties(props, delimiter);
+        }
+
+        browseAndVerifyTypes(proxy, true);
+    }
+
     protected void assertComplexData(int messageIndex, CompositeData cdata, String name, Object expected) {
         Object value = cdata.get(name);
         assertEquals("Message " + messageIndex + " CData field: " + name, expected, value);
@@ -809,6 +849,31 @@ public class MBeanTest extends EmbeddedBrokerTestSupport {
         // now lets try destroy it
         broker.destroyDurableSubscriber(clientID, "subscriber1");
         assertEquals("Durable subscriber count", 1, broker.getInactiveDurableTopicSubscribers().length);
+    }
+
+    protected void assertCreateAndDestroyOfflineDurableSubscriptions() throws Exception {
+        // lets create a new topic
+        ObjectName brokerName = assertRegisteredObjectName(domain + ":type=Broker,brokerName=localhost");
+        echo("Create QueueView MBean...");
+        BrokerViewMBean broker = MBeanServerInvocationHandler.newProxyInstance(mbeanServer, brokerName, BrokerViewMBean.class, true);
+
+        broker.addTopic(getDestinationString());
+
+        assertEquals("Durable subscriber count", 0, broker.getDurableTopicSubscribers().length);
+
+        String topicName = getDestinationString();
+        String selector = null;
+        ObjectName name1 = broker.createDurableSubscriber(offlineClientID, "subscriber3", topicName, selector);
+        broker.createDurableSubscriber(offlineClientID, "subscriber4", topicName, selector);
+        assertEquals("Durable subscriber count", 3, broker.getInactiveDurableTopicSubscribers().length);
+
+        assertNotNull("Should have created an mbean name for the durable subscriber!", name1);
+
+        LOG.info("Created durable subscriber with name: " + name1);
+
+        // now lets try destroy it
+        broker.destroyDurableSubscriber(offlineClientID, "subscriber3");
+        assertEquals("Durable subscriber count", 2, broker.getInactiveDurableTopicSubscribers().length);
     }
 
     protected void assertConsumerCounts() throws Exception {

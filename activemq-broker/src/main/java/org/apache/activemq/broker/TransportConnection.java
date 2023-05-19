@@ -19,7 +19,6 @@ package org.apache.activemq.broker;
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.SocketException;
-import java.net.URI;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -101,7 +100,6 @@ import org.apache.activemq.transport.TransportDisposedIOException;
 import org.apache.activemq.util.IntrospectionSupport;
 import org.apache.activemq.util.MarshallingSupport;
 import org.apache.activemq.util.NetworkBridgeUtils;
-import org.apache.activemq.util.SubscriptionKey;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -240,19 +238,18 @@ public class TransportConnection implements Connection, Task, CommandVisitor {
             if (TRANSPORTLOG.isDebugEnabled()) {
                 TRANSPORTLOG.debug("{} failed: {}", this, e.getMessage(), e);
             } else if (TRANSPORTLOG.isWarnEnabled() && !suppressed(e)) {
-                TRANSPORTLOG.warn("{} failed", this, e);
+                if (connector.isDisplayStackTrace()) {
+                    TRANSPORTLOG.warn("{} failed", this, e);
+                } else {
+                    TRANSPORTLOG.warn("{} failed: {}", this, e.getMessage());
+                }
             }
             stopAsync(e);
         }
     }
 
     private boolean suppressed(IOException e) {
-        return (isStomp() || !connector.isWarnOnRemoteClose()) && ((e instanceof SocketException && e.getMessage().indexOf("reset") != -1) || e instanceof EOFException);
-    }
-
-    private boolean isStomp() {
-        URI uri = connector.getUri();
-        return uri != null && uri.getScheme() != null && uri.getScheme().indexOf("stomp") != -1;
+        return (!connector.isWarnOnRemoteClose()) && ((e instanceof SocketException && e.getMessage().indexOf("reset") != -1) || e instanceof EOFException);
     }
 
     /**
@@ -310,7 +307,7 @@ public class TransportConnection implements Connection, Task, CommandVisitor {
                 if (SERVICELOG.isDebugEnabled()) {
                     SERVICELOG.debug("Async error occurred: {}", e.getMessage(), e);
                 } else {
-                    SERVICELOG.warn("Async error occurred", e);
+                    SERVICELOG.warn("Async error occurred", e.getMessage());
                 }
                 ConnectionError ce = new ConnectionError();
                 ce.setException(e);
@@ -1228,7 +1225,6 @@ public class TransportConnection implements Connection, Task, CommandVisitor {
         // from the broker.
         if (!broker.isStopped()) {
             List<TransportConnectionState> connectionStates = listConnectionStates();
-            connectionStates = listConnectionStates();
             for (TransportConnectionState cs : connectionStates) {
                 cs.getContext().getStopping().set(true);
                 try {

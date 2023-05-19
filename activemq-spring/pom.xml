@@ -22,7 +22,7 @@
   <parent>
     <groupId>org.apache.activemq</groupId>
     <artifactId>activemq-parent</artifactId>
-    <version>5.17.0-SNAPSHOT</version>
+    <version>5.19.0-SNAPSHOT</version>
   </parent>
 
   <artifactId>activemq-spring</artifactId>
@@ -69,11 +69,6 @@
       <artifactId>activemq-kahadb-store</artifactId>
       <optional>true</optional>
     </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>activeio-core</artifactId>
-      <optional>true</optional>
-    </dependency>
     
     <!-- add the optional replication deps -->
     <dependency>
@@ -85,25 +80,16 @@
     <dependency>
       <groupId>org.linkedin</groupId>
       <artifactId>org.linkedin.zookeeper-impl</artifactId>
-      <version>${linkedin-zookeeper-version}</version>
       <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>org.json</groupId>
-          <artifactId>json</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.linkedin</groupId>
       <artifactId>org.linkedin.util-core</artifactId>
-      <version>${linkedin-zookeeper-version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.zookeeper</groupId>
       <artifactId>zookeeper</artifactId>
-      <version>${zookeeper-version}</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -118,7 +104,6 @@
       <scope>provided</scope>
     </dependency>
 
-    
     <dependency>
       <groupId>org.apache.activemq</groupId>
       <artifactId>activemq-mqtt</artifactId>
@@ -144,7 +129,7 @@
     </dependency>
     <dependency>
       <groupId>org.apache.geronimo.specs</groupId>
-      <artifactId>geronimo-annotation_1.0_spec</artifactId>
+      <artifactId>geronimo-annotation_1.3_spec</artifactId>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -178,8 +163,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>log4j</groupId>
-      <artifactId>log4j</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -189,8 +174,8 @@
       <scope>test</scope>
     </dependency>
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-log4j12</artifactId>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j2-impl</artifactId>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -205,7 +190,7 @@
       <plugin>
         <groupId>org.apache.xbean</groupId>
         <artifactId>maven-xbean-plugin</artifactId>
-        <version>3.12</version>
+        <version>${xbean-version}</version>
         <executions>
           <execution>
             <phase>process-classes</phase>
@@ -236,9 +221,35 @@
           <dependency>
             <groupId>com.thoughtworks.qdox</groupId>
             <artifactId>qdox</artifactId>
-            <version>1.12</version>
+            <version>1.12.1</version>
           </dependency>
         </dependencies>
+      </plugin>
+      <plugin><!-- workaround for https://issues.apache.org/jira/browse/XBEAN-335 -->
+        <groupId>com.google.code.maven-replacer-plugin</groupId>
+        <artifactId>replacer</artifactId>
+        <version>1.5.3</version>
+        <executions>
+          <execution>
+            <phase>process-classes</phase>
+            <goals>
+              <goal>replace</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <basedir>${project.build.directory}/classes/META-INF</basedir>
+          <includes>
+            <include>spring.*</include>
+          </includes>
+          <replacements>
+            <replacement>
+              <token>#... ... .+</token>
+              <value>#</value>
+            </replacement>
+          </replacements>
+          <regex>true</regex>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
