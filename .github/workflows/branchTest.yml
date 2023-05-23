@@ -6,11 +6,15 @@ name: local branch testing workflow
 # or API.
 on:
   push:
-    branches: [ '**' ]
+    branches:
+      - master
+      - 'upstream-activemq-**'
   pull_request:
-    branches: [ '**' ]
+    branches:
+      - master
+      - 'upstream-activemq-**'
 
-    # A workflow run is made up of one or more jobs that can run sequentially or in parallel
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   setup_build_test:
     runs-on: self-hosted
