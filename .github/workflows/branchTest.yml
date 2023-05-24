@@ -18,6 +18,7 @@ on:
 jobs:
   setup_build_test:
     runs-on: self-hosted
+    timeout-minutes: 12 * 60
     steps:
       - run: |
           echo "Branch to run: ${{ github.event.inputs.branchName }}"
