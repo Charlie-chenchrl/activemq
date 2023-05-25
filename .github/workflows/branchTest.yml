@@ -18,7 +18,7 @@ on:
 jobs:
   setup_build_test:
     runs-on: self-hosted
-    timeout-minutes: 720
+    timeout-minutes: 1440
     steps:
       - run: |
           echo "Branch to run: ${{ github.event.inputs.branchName }}"
@@ -33,6 +33,7 @@ jobs:
         run: mvn -U -B -e clean install -DskipTests
 
       - name: unit test run
+        timeout-minutes: 720
         run: |
           cd activemq-unit-tests
           mvn -B -e -fae test -Dsurefire.rerunFailingTestsCount=3
