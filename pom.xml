@@ -75,7 +75,7 @@
     <jetty-version>${jetty9-version}</jetty-version>
     <jmdns-version>3.5.8</jmdns-version>
     <tomcat-api-version>9.0.65</tomcat-api-version>
-    <jettison-version>1.5.3</jettison-version>
+    <jettison-version>1.5.4</jettison-version>
     <jmock-version>2.5.1</jmock-version>
     <jolokia-version>1.7.1</jolokia-version>
     <josql-version>1.5_5</josql-version>
@@ -90,8 +90,6 @@
     <mqtt-client-version>1.16</mqtt-client-version>
     <org-apache-derby-version>10.15.2.0</org-apache-derby-version>
     <osgi-version>6.0.0</osgi-version>
-    <linkedin-zookeeper-version>1.4.0</linkedin-zookeeper-version>
-    <zookeeper-version>3.4.14</zookeeper-version>
     <qpid-proton-version>0.33.10</qpid-proton-version>
     <qpid-jms-version>1.6.0</qpid-jms-version>
     <netty-version>4.1.75.Final</netty-version>
@@ -122,7 +120,7 @@
     <javaee-javadoc-url>http://download.oracle.com/javaee/6/api/</javaee-javadoc-url>
 
     <!-- Maven Plugin Version for this Project -->
-    <maven-bundle-plugin-version>5.1.8</maven-bundle-plugin-version>
+    <maven-bundle-plugin-version>5.1.9</maven-bundle-plugin-version>
     <maven-surefire-plugin-version>3.0.0-M8</maven-surefire-plugin-version>
     <maven-antrun-plugin-version>3.1.0</maven-antrun-plugin-version>
     <maven-assembly-plugin-version>3.4.2</maven-assembly-plugin-version>
@@ -229,7 +227,6 @@
     <module>activemq-runtime-config</module>
     <module>activemq-tooling</module>
     <module>activemq-web</module>
-    <module>activemq-partition</module>
     <module>activemq-osgi</module>
     <module>activemq-blueprint</module>
     <module>activemq-web-demo</module>
@@ -313,11 +310,6 @@
       <dependency>
         <groupId>org.apache.activemq</groupId>
         <artifactId>activemq-all</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.activemq</groupId>
-        <artifactId>activemq-partition</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -583,65 +575,6 @@
         <groupId>org.ops4j.pax.logging</groupId>
         <artifactId>pax-logging-log4j2</artifactId>
         <version>${pax-logging-version}</version>
-      </dependency>
-
-      <dependency>
-        <groupId>org.apache.hadoop.zookeeper</groupId>
-        <artifactId>zookeeper</artifactId>
-        <version>${zookeeper-version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.apache.zookeeper</groupId>
-        <artifactId>zookeeper</artifactId>
-        <version>${zookeeper-version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>io.netty</groupId>
-            <artifactId>netty</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.linkedin</groupId>
-        <artifactId>org.linkedin.zookeeper-impl</artifactId>
-        <version>${linkedin-zookeeper-version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>log4j</groupId>
-            <artifactId>log4j</artifactId>
-          </exclusion>
-        </exclusions>
-      </dependency>
-      <dependency>
-        <groupId>org.linkedin</groupId>
-        <artifactId>org.linkedin.util-core</artifactId>
-        <version>${linkedin-zookeeper-version}</version>
       </dependency>
 
       <!-- zeroconf transport -->
