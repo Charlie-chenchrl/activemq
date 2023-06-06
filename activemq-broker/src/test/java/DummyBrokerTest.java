@@ -26,5 +26,6 @@ public class DummyBrokerTest extends TestCase {
     public void testDummyThings() throws Exception {
         assertEquals(1, 1);
         LOG.info("Dummy things asserted!");
+        LOG.info("try PR run #2");
     }
 }
