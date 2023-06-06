@@ -12,9 +12,6 @@ jobs:
         branch: [ 'feature/replica_broker', 'activemq-5.17.3.crdr' ]
 
     steps:
-      - run: |
-          sudo apt-get install git -y
-          git config  --global user.name "GitHub Actions Bot" && git config --global user.email "<>"
       - uses: actions/checkout@v3
         with:
           ref: ${{ matrix.branch }}
