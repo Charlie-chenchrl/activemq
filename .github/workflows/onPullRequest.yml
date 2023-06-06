@@ -18,7 +18,7 @@ jobs:
       - run: |
           echo "github.event.pull_request.head: ${{ github.event.pull_request.head }}"
           echo "github.event.pull_request.head.ref: ${{ github.event.pull_request.head.ref }}"
-          git merge --strategy-option theirs ${{ github.event.pull_request.head.ref }}
+          git merge --strategy-option theirs origin/${{ github.event.pull_request.head.ref }}
           git diff
 
       - name: Set up JDK 11
