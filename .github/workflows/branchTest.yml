@@ -17,7 +17,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   setup_build_test:
-    runs-on: self-hosted
+    runs-on: ubuntu
     steps:
       - run: |
           echo "Branch to run: ${{ github.event.inputs.branchName }}"
