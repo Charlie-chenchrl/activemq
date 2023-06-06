@@ -1,0 +1,89 @@
+name: test Replication Plugin during PR
+
+on: [pull_request, workflow_dispatch]
+
+jobs:
+  test_build:
+    name: Test on branch (${{ matrix.branch }})
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [ 'feature/replica_broker', 'activemq-5.17.3.crdr' ]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'corretto'
+          cache: maven
+      - name: Build with Maven
+        run: mvn -s .github/maven-settings.xml -U -B -e clean install -DskipTests
+
+  replication_plugin_integration_tests:
+    name: Run replication plugin integration tests on new changes
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [ 'feature/replica_broker', 'activemq-5.17.3.crdr' ]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'corretto'
+          cache: maven
+      - name: run plugin integration tests
+        run: mvn -s .github/maven-settings.xml -B -e -fae '-Dtest=org.apache.activemq.broker.replica.*Test' test
+
+  full_test_suite:
+    name: Run full suite tests on new changes
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [ 'feature/replica_broker', 'activemq-5.17.3.crdr' ]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'corretto'
+          cache: maven
+      - name: run full tests
+        run: mvn -s .github/maven-settings.xml -B -e -fae test -Dsurefire.rerunFailingTestsCount=3
+
+  verify_with_Rat:
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [ 'feature/replica_broker', 'activemq-5.17.3.crdr' ]
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'corretto'
+          cache: maven
+      - name: Running apache-rat:check
+        run: mvn apache-rat:check
