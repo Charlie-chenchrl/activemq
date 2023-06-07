@@ -34,6 +34,7 @@ jobs:
       - name: generating diff from base ${{ github.ref }}
         run: |
           /usr/bin/git fetch || true
+          /usr/bin/git pull
           echo "sync_data output is ${{ steps.sync_data.outputs.SYNC_SHA }}"
           /usr/bin/git diff ${{ steps.sync_data.outputs.SYNC_SHA }}..HEAD > ${{ matrix.branch }}-diff.patch
           /usr/bin/git rm --cache ${{ matrix.branch }}-diff.patch || true
