@@ -1,0 +1,39 @@
+#  Licensed to the Apache Software Foundation (ASF) under one or more contributor license agreements.
+#    See the NOTICE file distributed with this work for additional information regarding copyright ownership.
+#    The ASF licenses this file to You under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain a copy of the License at
+#    http://www.apache.org/licenses/LICENSE-2.0 Unless required by applicable law or agreed to in writing,
+#    software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+#    CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing
+#    permissions and limitations under the License.
+
+name: run full suite of tests and automations
+
+on: push
+
+jobs:
+  release:
+    name: push current changes to ${{ matrix.branch }}
+    runs-on: self-hosted
+    strategy:
+      fail-fast: false
+      matrix:
+        branch: [ 'activemq-5.17.3.crdr' ]
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+      - run: |
+          echo "::set-output name=branch::$(basename ${{ github.ref }})"
+          export TARGET_BRANCH=$(basename ${{ github.ref }})
+          /usr/bin/git fetch || true
+          /usr/bin/git diff ${{ matrix.branch }}..origin/$TARGET_BRANCH > ${{ matrix.branch }}-diff.patch
+          /usr/bin/git apply --reject --whitespace=fix ${{ matrix.branch }}-diff.patch
+          rm ${{ matrix.branch }}-diff.patch
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "auto commit to ${{ matrix.branch }} from master branch"
+          branch: ${{ matrix.branch }}
