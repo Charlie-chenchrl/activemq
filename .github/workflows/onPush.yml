@@ -32,14 +32,13 @@ jobs:
       - uses: actions/checkout@v3
       - name: generating diff from base ${{ github.ref }}
         run: |
+          /usr/bin/git fetch || true
           /usr/bin/git diff ${{ steps.vars.outputs.SYNC_SHA }}..HEAD > ${{ matrix.branch }}-diff.patch
-      - uses: actions/checkout@v3
-        with:
-          ref: ${{ matrix.branch }}
+          /usr/bin/git rm --cache ${{ matrix.branch }}-diff.patch || true
+          /usr/bin/git checkout origin ${{ matrix.branch }}
       - run: |
           echo "::set-output name=branch::$(basename ${{ github.ref }})"
           export TARGET_BRANCH=$(basename ${{ github.ref }})
-          /usr/bin/git fetch || true
           export REMOTE_HEAD=$(/usr/bin/git rev-parse origin/master)
           echo $REMOTE_HEAD > ci.env
           /usr/bin/git apply --reject --whitespace=fix --exclude=.github* ${{ matrix.branch }}-diff.patch
