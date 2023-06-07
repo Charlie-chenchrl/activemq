@@ -27,13 +27,15 @@ jobs:
         with:
           ref: ${{ matrix.branch }}
       - name: read in sync sha from ${{ matrix.branch }}
+        id: sync_data
         run: |
           echo "SYNC_SHA=$(cat ci.env)" >> $GITHUB_OUTPUT
       - uses: actions/checkout@v3
       - name: generating diff from base ${{ github.ref }}
         run: |
           /usr/bin/git fetch || true
-          /usr/bin/git diff ${{ steps.vars.outputs.SYNC_SHA }}..HEAD > ${{ matrix.branch }}-diff.patch
+          echo "sync_data output is ${{ steps.sync_data.outputs.SYNC_SHA }}"
+          /usr/bin/git diff ${{ steps.sync_data.outputs.SYNC_SHA }}..HEAD > ${{ matrix.branch }}-diff.patch
           /usr/bin/git rm --cache ${{ matrix.branch }}-diff.patch || true
           /usr/bin/git checkout origin ${{ matrix.branch }}
       - run: |
