@@ -98,7 +98,7 @@ public class AMQDeadlockTest3 extends org.apache.activemq.test.TestSupport {
             container1 = createDefaultMessageListenerContainer(acf, new TestMessageListener1(500), QUEUE1_NAME);
             container1.afterPropertiesSet();
 
-            Thread.sleep(2100);
+            Thread.sleep(2000);
 
             final ExecutorService executor = Executors.newCachedThreadPool();
             for (int i = 0; i < MAX_PRODUCERS; i++) {
