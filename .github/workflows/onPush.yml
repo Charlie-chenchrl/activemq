@@ -33,6 +33,7 @@ jobs:
           export SYNC_COMMIT_SHA=$(cat ci.env)
           export REMOTE_HEAD=$(/usr/bin/git rev-parse origin/master)
           /usr/bin/git cherry-pick -n  --strategy=recursive -X theirs $SYNC_COMMIT_SHA^..$REMOTE_HEAD
+          /usr/bin/git cherry-pick --skip || true
           echo $REMOTE_HEAD > ci.env
           /usr/bin/git rm --cached -r .github
           /usr/bin/git status
