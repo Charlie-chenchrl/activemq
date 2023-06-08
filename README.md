@@ -70,3 +70,4 @@ Licensing
    <https://www.oracle.com/java/technologies/javase/javase-tech-security.html>.
    ActiveMQ does not include these libraries itself, but is designed to use them.
 
+what?
