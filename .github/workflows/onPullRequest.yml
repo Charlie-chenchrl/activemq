@@ -101,4 +101,9 @@ jobs:
           distribution: 'corretto'
           cache: maven
       - name: Running apache-rat:check
-        run: mvn apache-rat:check
+        run: |
+	   (mvn apache-rat:check)
+	   code=$? 		   
+           cat target/rat.txt || true
+	   exit $code
+
